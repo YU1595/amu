@@ -158,16 +158,16 @@ function polarToPoint(center, radius, angle) {
 
 function renderThread() {
   const count = getDisplayCount(selectedEmotion, selectedPeriod);
-  const visibleDots = Math.min(34, Math.max(12, Math.round(count / 4)));
+  const visibleDots = Math.min(28, Math.max(10, Math.round(count / 5)));
   const center = 180;
   const dots = [];
 
   for (let index = 0; index < visibleDots; index += 1) {
-    const angle = (Math.PI * 2 * index) / visibleDots + Math.sin(index * 1.9) * 0.22;
-    const radius = 72 + (index % 5) * 19 + Math.sin(index * 2.4) * 8;
+    const angle = (Math.PI * 2 * index) / visibleDots + Math.sin(index * 1.7) * 0.28;
+    const radius = 62 + (index % 6) * 18 + Math.sin(index * 2.2) * 10;
     dots.push({
       ...polarToPoint(center, radius, angle),
-      size: 4.2 + (index % 4) * 0.75,
+      size: 3.4 + (index % 4) * 0.8,
       angle,
     });
   }
@@ -175,37 +175,69 @@ function renderThread() {
   const lines = dots
     .map((dot, index) => {
       const next = dots[(index + 1) % dots.length];
-      const pull = 0.16 + (index % 3) * 0.04;
-      const c1x = dot.x + (center - dot.x) * pull;
-      const c1y = dot.y + (center - dot.y) * pull;
-      const c2x = next.x + (center - next.x) * pull;
-      const c2y = next.y + (center - next.y) * pull;
-      return `<path class="thread-line" d="M ${dot.x.toFixed(1)} ${dot.y.toFixed(1)} C ${c1x.toFixed(1)} ${c1y.toFixed(1)}, ${c2x.toFixed(1)} ${c2y.toFixed(1)}, ${next.x.toFixed(1)} ${next.y.toFixed(1)}" />`;
+      const shouldSkip = index % 7 === 3;
+      if (shouldSkip) return "";
+      return `<path class="thread-line" d="M ${dot.x.toFixed(1)} ${dot.y.toFixed(1)} L ${next.x.toFixed(1)} ${next.y.toFixed(1)}" />`;
     })
     .join("");
 
-  const spokes = dots
-    .filter((_, index) => index % 4 === 0)
+  const constellationBranches = dots
+    .filter((_, index) => index % 5 === 1)
     .map((dot) => {
-      return `<path class="thread-line" d="M ${center} ${center} Q ${(center + dot.x) / 2} ${((center + dot.y) / 2 - 10).toFixed(1)}, ${dot.x.toFixed(1)} ${dot.y.toFixed(1)}" />`;
+      return `<path class="thread-line thread-line-soft" d="M ${center} ${center} L ${dot.x.toFixed(1)} ${dot.y.toFixed(1)}" />`;
     })
     .join("");
+
+  const backgroundStars = Array.from({ length: 26 }, (_, index) => {
+    const x = 34 + ((index * 47) % 292);
+    const y = 34 + ((index * 73) % 292);
+    const radius = index % 4 === 0 ? 1.2 : 0.8;
+    return `<circle class="thread-star tiny" cx="${x}" cy="${y}" r="${radius}" />`;
+  }).join("");
 
   const dotNodes = dots
     .map((dot) => {
-      return `<circle class="thread-dot" style="--dot-color: ${selectedEmotion.color}" cx="${dot.x.toFixed(1)}" cy="${dot.y.toFixed(1)}" r="${dot.size.toFixed(1)}" />`;
+      const x = dot.x.toFixed(1);
+      const y = dot.y.toFixed(1);
+      const size = dot.size.toFixed(1);
+      return `
+        <g class="thread-star-node" style="--dot-color: ${selectedEmotion.color}">
+          <circle class="thread-star glow" cx="${x}" cy="${y}" r="${(dot.size * 2.8).toFixed(1)}" />
+          <path class="thread-spark" d="M ${x} ${(dot.y - dot.size * 2.2).toFixed(1)} L ${x} ${(dot.y + dot.size * 2.2).toFixed(1)} M ${(dot.x - dot.size * 2.2).toFixed(1)} ${y} L ${(dot.x + dot.size * 2.2).toFixed(1)} ${y}" />
+          <circle class="thread-star core" cx="${x}" cy="${y}" r="${size}" />
+        </g>
+      `;
     })
     .join("");
 
   threadSvg.innerHTML = `
-    <circle cx="${center}" cy="${center}" r="126" fill="rgba(255,250,242,0.48)" />
+    <defs>
+      <radialGradient id="constellation-sky" cx="50%" cy="48%" r="58%">
+        <stop offset="0%" stop-color="rgba(255,250,242,0.95)" />
+        <stop offset="58%" stop-color="rgba(223,226,219,0.58)" />
+        <stop offset="100%" stop-color="rgba(145,172,196,0.28)" />
+      </radialGradient>
+      <filter id="soft-star-glow" x="-80%" y="-80%" width="260%" height="260%">
+        <feGaussianBlur stdDeviation="4" result="blur" />
+        <feMerge>
+          <feMergeNode in="blur" />
+          <feMergeNode in="SourceGraphic" />
+        </feMerge>
+      </filter>
+    </defs>
+    <circle cx="${center}" cy="${center}" r="150" fill="url(#constellation-sky)" />
+    ${backgroundStars}
     ${lines}
-    ${spokes}
+    ${constellationBranches}
     ${dotNodes}
-    <circle class="thread-dot self" style="--dot-color: ${selectedEmotion.color}" cx="${center}" cy="${center}" r="10" />
+    <g class="thread-star-node self" style="--dot-color: ${selectedEmotion.color}">
+      <circle class="thread-star glow" cx="${center}" cy="${center}" r="28" />
+      <path class="thread-spark self-spark" d="M ${center} ${center - 32} L ${center} ${center + 32} M ${center - 32} ${center} L ${center + 32} ${center}" />
+      <circle class="thread-star core self-core" cx="${center}" cy="${center}" r="10" />
+    </g>
   `;
 
-  threadDetail.textContent = `${count}人の「${selectedEmotion.name}」が、匿名の点としてそっと集まっています。`;
+  threadDetail.textContent = `${count}人の「${selectedEmotion.name}」が、匿名の星として静かな星座をつくっています。`;
 }
 
 renderEmotionButtons();
