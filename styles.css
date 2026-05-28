@@ -324,14 +324,14 @@ h2 {
 
 .thread-line {
   fill: none;
-  stroke: rgba(255, 239, 205, 0.68);
-  stroke-width: 1.25;
+  stroke: rgba(255, 242, 211, 0.76);
+  stroke-width: 0.9;
   stroke-linecap: round;
 }
 
 .thread-line-soft {
-  stroke: rgba(255, 239, 205, 0.34);
-  stroke-dasharray: 2 7;
+  stroke: rgba(255, 242, 211, 0.42);
+  stroke-dasharray: 1 9;
 }
 
 .thread-star {
@@ -344,22 +344,22 @@ h2 {
 
 .thread-star.glow {
   fill: color-mix(in srgb, var(--dot-color), white 48%);
-  opacity: 0.32;
+  opacity: 0.24;
   filter: url(#soft-star-glow);
+}
+
+.thread-star-shape {
+  fill: #fff8dc;
+  stroke: rgba(255, 255, 246, 0.92);
+  stroke-width: 0.9;
+  filter: drop-shadow(0 0 8px rgba(255, 239, 197, 0.92));
 }
 
 .thread-star.core {
   fill: #fff7dd;
   stroke: color-mix(in srgb, var(--dot-color), white 20%);
-  stroke-width: 1.6;
-  filter: drop-shadow(0 0 8px rgba(255, 235, 190, 0.9));
-}
-
-.thread-spark {
-  stroke: rgba(255, 246, 220, 0.86);
-  stroke-width: 0.9;
-  stroke-linecap: round;
-  opacity: 0.72;
+  stroke-width: 1;
+  filter: drop-shadow(0 0 10px rgba(255, 235, 190, 0.95));
 }
 
 .thread-star-node.self .thread-star.glow {
@@ -367,14 +367,15 @@ h2 {
 }
 
 .self-core {
-  fill: color-mix(in srgb, var(--dot-color), white 38%);
+  fill: #fff8dc;
   stroke: rgba(255, 250, 242, 0.95);
-  stroke-width: 4.5;
+  stroke-width: 1.8;
 }
 
 .self-spark {
+  fill: color-mix(in srgb, var(--dot-color), white 52%);
+  stroke: #fff8dc;
   stroke-width: 1.2;
-  opacity: 0.86;
 }
 
 .thread-copy {

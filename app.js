@@ -160,41 +160,39 @@ function renderThread() {
   const count = getDisplayCount(selectedEmotion, selectedPeriod);
   const center = 180;
   const constellationTemplate = [
-    { x: 58, y: 202, size: 3.8 },
-    { x: 92, y: 158, size: 4.4 },
-    { x: 126, y: 118, size: 3.6 },
-    { x: 164, y: 134, size: 5.2 },
-    { x: 198, y: 84, size: 3.4 },
-    { x: 236, y: 126, size: 4.8 },
-    { x: 284, y: 112, size: 4.1 },
-    { x: 306, y: 158, size: 3.5 },
-    { x: 270, y: 196, size: 4.6 },
-    { x: 226, y: 184, size: 3.4 },
-    { x: 204, y: 232, size: 4.2 },
-    { x: 166, y: 258, size: 5.1 },
-    { x: 128, y: 222, size: 3.8 },
-    { x: 84, y: 244, size: 4.3 },
+    { x: 48, y: 240, size: 4.6 },
+    { x: 86, y: 198, size: 5.2 },
+    { x: 126, y: 166, size: 4.4 },
+    { x: 166, y: 188, size: 6.2 },
+    { x: 204, y: 142, size: 4.8 },
+    { x: 248, y: 164, size: 5.6 },
+    { x: 300, y: 124, size: 4.7 },
+    { x: 316, y: 184, size: 4.3 },
+    { x: 138, y: 96, size: 3.9 },
+    { x: 196, y: 76, size: 4.4 },
+    { x: 230, y: 230, size: 4.8 },
+    { x: 184, y: 274, size: 5.4 },
+    { x: 112, y: 252, size: 4.2 },
+    { x: 74, y: 104, size: 3.8 },
   ];
-  const visibleDots = Math.min(constellationTemplate.length, Math.max(10, Math.round(count / 4)));
+  const visibleDots = Math.min(constellationTemplate.length, Math.max(9, Math.round(count / 18)));
   const dots = constellationTemplate.slice(0, visibleDots);
   const linePairs = [
     [0, 1],
     [1, 2],
     [2, 3],
     [3, 4],
-    [3, 5],
+    [4, 5],
     [5, 6],
     [6, 7],
-    [7, 8],
+    [2, 8],
     [8, 9],
-    [9, 10],
+    [5, 10],
     [10, 11],
     [11, 12],
-    [12, 13],
-    [13, 0],
-    [5, 9],
+    [1, 13],
   ];
-  const centerPairs = [3, 8, 10, 12];
+  const selfPairs = [3, 4, 10];
 
   const lines = linePairs
     .filter(([from, to]) => dots[from] && dots[to])
@@ -205,7 +203,7 @@ function renderThread() {
     })
     .join("");
 
-  const constellationBranches = centerPairs
+  const constellationBranches = selfPairs
     .filter((index) => dots[index])
     .map((index) => {
       const dot = dots[index];
@@ -224,12 +222,14 @@ function renderThread() {
     .map((dot) => {
       const x = dot.x;
       const y = dot.y;
-      const size = dot.size.toFixed(1);
+      const size = dot.size;
+      const inner = size * 0.38;
+      const long = size * 2.15;
       return `
         <g class="thread-star-node" style="--dot-color: ${selectedEmotion.color}">
-          <circle class="thread-star glow" cx="${x}" cy="${y}" r="${(dot.size * 3.6).toFixed(1)}" />
-          <path class="thread-spark" d="M ${x} ${(dot.y - dot.size * 2.6).toFixed(1)} L ${x} ${(dot.y + dot.size * 2.6).toFixed(1)} M ${(dot.x - dot.size * 2.6).toFixed(1)} ${y} L ${(dot.x + dot.size * 2.6).toFixed(1)} ${y}" />
-          <circle class="thread-star core" cx="${x}" cy="${y}" r="${size}" />
+          <circle class="thread-star glow" cx="${x}" cy="${y}" r="${(size * 4.2).toFixed(1)}" />
+          <path class="thread-star-shape" d="M ${x} ${(y - long).toFixed(1)} L ${(x + inner).toFixed(1)} ${(y - inner).toFixed(1)} L ${(x + long).toFixed(1)} ${y} L ${(x + inner).toFixed(1)} ${(y + inner).toFixed(1)} L ${x} ${(y + long).toFixed(1)} L ${(x - inner).toFixed(1)} ${(y + inner).toFixed(1)} L ${(x - long).toFixed(1)} ${y} L ${(x - inner).toFixed(1)} ${(y - inner).toFixed(1)} Z" />
+          <circle class="thread-star core" cx="${x}" cy="${y}" r="${(size * 0.52).toFixed(1)}" />
         </g>
       `;
     })
@@ -258,8 +258,8 @@ function renderThread() {
     ${dotNodes}
     <g class="thread-star-node self" style="--dot-color: ${selectedEmotion.color}">
       <circle class="thread-star glow" cx="${center}" cy="${center}" r="34" />
-      <path class="thread-spark self-spark" d="M ${center} ${center - 36} L ${center} ${center + 36} M ${center - 36} ${center} L ${center + 36} ${center}" />
-      <circle class="thread-star core self-core" cx="${center}" cy="${center}" r="10" />
+      <path class="thread-star-shape self-spark" d="M ${center} ${center - 23} L ${center + 4} ${center - 4} L ${center + 23} ${center} L ${center + 4} ${center + 4} L ${center} ${center + 23} L ${center - 4} ${center + 4} L ${center - 23} ${center} L ${center - 4} ${center - 4} Z" />
+      <circle class="thread-star core self-core" cx="${center}" cy="${center}" r="5.8" />
     </g>
   `;
 
